@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Detalles de la Mesa {{ mesa.numero }}</h2>
+  <p>Capacidad: {{ mesa.capacidad }}</p>
+  <p>Estado: {{ mesa.estado }}</p>
+
+  <h3>Pedidos</h3>
+  <ul>
+    {% for pedido in pedidos %}
+      <li>{{ pedido.cantidad }} x {{ pedido.producto.nombre }}</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Agregar Pedido</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Agregar</button>
+  </form>
+{% endblock %}
