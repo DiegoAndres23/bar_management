@@ -17,8 +17,6 @@
             <div class="card mb-4 mesa-card">
                 <div class="card-body">
                     <h5 class="card-title">Mesa {{ mesa.numero }}</h5>
-                    <p class="card-text">Capacidad: {{ mesa.capacidad }}</p>
-                    <p class="card-text">Estado: {{ mesa.estado }}</p>
                     <select class="form-select mb-3" id="producto-{{ mesa.pk }}">
                         <option value="Aguila">Aguila</option>
                         <option value="Poker">Poker</option>
@@ -26,13 +24,12 @@
                     </select>
                     <div class="quantity-controls">
                         <button class="btn btn-secondary quantity-btn" onclick="decreaseQuantity({{ mesa.pk }})">-</button>
-                        <span id="quantity-{{ mesa.pk }}">1</span>
+                        <input type="number" id="quantity-{{ mesa.pk }}" value="1" min="1" class="form-control quantity-input">
                         <button class="btn btn-secondary quantity-btn" onclick="increaseQuantity({{ mesa.pk }})">+</button>
                     </div>
                     <button class="btn btn-success" onclick="addPedido({{ mesa.pk }})">Agregar Pedido</button>
                     <button class="btn btn-info" onclick="showPedidos({{ mesa.pk }})">Ver Pedido</button>
                     <button class="btn btn-warning" onclick="pagarCuenta({{ mesa.pk }})">Pagar Cuenta</button>
-                    <button class="btn btn-danger" onclick="deleteMesa({{ mesa.pk }})">Eliminar</button>
                 </div>
             </div>
         </div>
@@ -64,8 +61,6 @@
             <div class="card mb-4 mesa-card">
                 <div class="card-body">
                     <h5 class="card-title">Mesa ${mesaCount}</h5>
-                    <p class="card-text">Capacidad: <input type="number" class="form-control" placeholder="Capacidad"></p>
-                    <p class="card-text">Estado: <input type="text" class="form-control" placeholder="Estado"></p>
                     <select class="form-select mb-3" id="producto-${mesaCount}">
                         <option value="Aguila">Aguila</option>
                         <option value="Poker">Poker</option>
@@ -73,13 +68,12 @@
                     </select>
                     <div class="quantity-controls">
                         <button class="btn btn-secondary quantity-btn" onclick="decreaseQuantity(${mesaCount})">-</button>
-                        <span id="quantity-${mesaCount}">1</span>
+                        <input type="number" id="quantity-${mesaCount}" value="1" min="1" class="form-control quantity-input">
                         <button class="btn btn-secondary quantity-btn" onclick="increaseQuantity(${mesaCount})">+</button>
                     </div>
                     <button class="btn btn-success" onclick="addPedido(${mesaCount})">Agregar Pedido</button>
                     <button class="btn btn-info" onclick="showPedidos(${mesaCount})">Ver Pedido</button>
                     <button class="btn btn-warning" onclick="pagarCuenta(${mesaCount})">Pagar Cuenta</button>
-                    <button class="btn btn-danger" onclick="deleteMesa(${mesaCount})">Eliminar</button>
                 </div>
             </div>
         `;
@@ -88,26 +82,26 @@
     }
 
     function increaseQuantity(mesaId) {
-        const quantitySpan = document.getElementById(`quantity-${mesaId}`);
-        let quantity = parseInt(quantitySpan.textContent);
+        const quantityInput = document.getElementById(`quantity-${mesaId}`);
+        let quantity = parseInt(quantityInput.value);
         quantity++;
-        quantitySpan.textContent = quantity;
+        quantityInput.value = quantity;
     }
 
     function decreaseQuantity(mesaId) {
-        const quantitySpan = document.getElementById(`quantity-${mesaId}`);
-        let quantity = parseInt(quantitySpan.textContent);
+        const quantityInput = document.getElementById(`quantity-${mesaId}`);
+        let quantity = parseInt(quantityInput.value);
         if (quantity > 1) {
             quantity--;
-            quantitySpan.textContent = quantity;
+            quantityInput.value = quantity;
         }
     }
 
     function addPedido(mesaId) {
         const productoSelect = document.getElementById(`producto-${mesaId}`);
         const producto = productoSelect.value;
-        const quantitySpan = document.getElementById(`quantity-${mesaId}`);
-        const quantity = parseInt(quantitySpan.textContent);
+        const quantityInput = document.getElementById(`quantity-${mesaId}`);
+        const quantity = parseInt(quantityInput.value);
         if (!pedidos[mesaId]) {
             pedidos[mesaId] = [];
         }
@@ -117,22 +111,13 @@
 
     function showPedidos(mesaId) {
         const pedidoList = pedidos[mesaId] || [];
-        const pedidoText = pedidoList.map(p => `${p.producto} (Cantidad: ${p.quantity})`).join(', ');
         showPopup(`Pedidos de la mesa ${mesaId}`, pedidoList);
     }
 
     function pagarCuenta(mesaId) {
         const pedidoList = pedidos[mesaId] || [];
-        const pedidoText = pedidoList.map(p => `${p.producto} (Cantidad: ${p.quantity})`).join(', ');
         showPopup(`Total a pagar para la mesa ${mesaId}`, pedidoList);
         pedidos[mesaId] = []; // Reinicia los pedidos de la mesa
-    }
-
-    function deleteMesa(id) {
-        const mesa = document.getElementById(`mesa-${id}`);
-        mesa.remove();
-        delete pedidos[id]; // Elimina los pedidos de la mesa
-        alert('Eliminar mesa ' + id);
     }
 
     function showPopup(title, pedidoList) {
@@ -167,3 +152,111 @@
     }
 </script>
 {% endblock %}
+
+<style>
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #343a40;
+    padding-top: 20px;
+}
+.sidebar a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+}
+.sidebar a:hover {
+    background-color: #495057;
+}
+.content {
+    margin-left: 260px;
+    padding: 20px;
+}
+
+.mesa-card {
+    height: 300px; /* Ajusta la altura según tus necesidades */
+    overflow-y: auto; /* Permite el desplazamiento vertical si el contenido es demasiado grande */
+}
+
+.btn-svg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Ajusta el ancho según tus necesidades */
+    height: 40px; /* Ajusta la altura según tus necesidades */
+    padding: 0;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.quantity-controls button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin: 0 5px;
+}
+
+.quantity-controls .quantity-input {
+    width: 50px; /* Ajusta el ancho según tus necesidades */
+    text-align: center;
+    margin: 0 5px;
+}
+
+.quantity-controls input[type="number"] {
+    margin: 0;
+    width: 70px;
+}
+/* Popup styles */
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.popup-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+</style>
