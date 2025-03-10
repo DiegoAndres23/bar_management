@@ -22,3 +22,11 @@ class Pedido(models.Model):
 
     def __str__(self):
         return f"Pedido de {self.cantidad} {self.producto.nombre} en {self.mesa}"
+
+class Pago(models.Model):
+    mesa_id = models.IntegerField()
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Mesa {self.mesa_id} - Total: {self.total}'

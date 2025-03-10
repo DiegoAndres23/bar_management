@@ -111,16 +111,38 @@
 
     function showPedidos(mesaId) {
         const pedidoList = pedidos[mesaId] || [];
-        showPopup(`Pedidos de la mesa ${mesaId}`, pedidoList);
+        showPopup(`Pedidos de la mesa ${mesaId}`, pedidoList, mesaId);
     }
 
     function pagarCuenta(mesaId) {
         const pedidoList = pedidos[mesaId] || [];
-        showPopup(`Total a pagar para la mesa ${mesaId}`, pedidoList);
+        const total = pedidoList.reduce((sum, pedido) => sum + pedido.quantity, 0); // Calcula el total (puedes ajustar esto según los precios)
+        registrarPago(mesaId, total);
+        showPopup(`Total a pagar para la mesa ${mesaId}`, pedidoList, mesaId);
         pedidos[mesaId] = []; // Reinicia los pedidos de la mesa
     }
 
-    function showPopup(title, pedidoList) {
+    function registrarPago(mesaId, total) {
+        fetch("{% url 'registrar_pago' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ mesa_id: mesaId, total: total })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log(`Pago registrado para la mesa ${mesaId}: ${total} items`);
+            } else {
+                console.error('Error al registrar el pago');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function showPopup(title, pedidoList, mesaId) {
         document.getElementById('popup-title').textContent = title;
         const popupBody = document.getElementById('popup-body');
         popupBody.innerHTML = ''; // Clear previous content
@@ -129,13 +151,13 @@
             const table = document.createElement('table');
             table.className = 'table table-striped';
             const thead = document.createElement('thead');
-            thead.innerHTML = '<tr><th>Producto</th><th>Cantidad</th></tr>';
+            thead.innerHTML = '<tr><th>Producto</th><th>Cantidad</th><th>Acciones</th></tr>';
             table.appendChild(thead);
 
             const tbody = document.createElement('tbody');
-            pedidoList.forEach(p => {
+            pedidoList.forEach((p, index) => {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td>${p.producto}</td><td>${p.quantity}</td>`;
+                row.innerHTML = `<td>${p.producto}</td><td>${p.quantity}</td><td><button class="btn btn-danger" onclick="deletePedido(${mesaId}, ${index})">Eliminar</button></td>`;
                 tbody.appendChild(row);
             });
             table.appendChild(tbody);
@@ -145,6 +167,11 @@
         }
 
         document.getElementById('popup').style.display = 'block';
+    }
+
+    function deletePedido(mesaId, index) {
+        pedidos[mesaId].splice(index, 1);
+        showPedidos(mesaId); // Actualiza el popup después de eliminar el pedido
     }
 
     function closePopup() {
@@ -259,5 +286,15 @@
     cursor: pointer;
 }
 
+.btn-danger {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
 
+.btn-danger:hover {
+    background-color: darkred;
+}
 </style>
