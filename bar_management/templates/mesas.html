@@ -7,6 +7,8 @@
     <script>
         var mesaCount = {{ mesas|length }};
         var registrarPagoUrl = "{% url 'registrar_pago' %}";
+        var productos = JSON.parse('{{ productos|escapejs }}');
+        var csrfToken = "{{ csrf_token }}";
     </script>
     <h2 class="my-4">Lista de Mesas</h2>
     <button class="btn btn-primary mb-3 btn-svg" onclick="addMesa()">
@@ -23,9 +25,9 @@
                 <div class="card-body">
                     <h5 class="card-title">Mesa {{ mesa.numero }}</h5>
                     <select class="form-select mb-3" id="producto-{{ mesa.pk }}">
-                        <option value="Aguila">Aguila</option>
-                        <option value="Poker">Poker</option>
-                        <option value="Club Colombia">Club Colombia</option>
+                        {% for producto in productos %}
+                        <option value="{{ producto.nombre }}">{{ producto.nombre }}</option>
+                        {% endfor %}
                     </select>
                     <div class="quantity-controls">
                         <button class="btn btn-secondary quantity-btn" onclick="decreaseQuantity({{ mesa.pk }})">-</button>

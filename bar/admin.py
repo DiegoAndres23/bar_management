@@ -20,9 +20,5 @@ class PedidoAdmin(admin.ModelAdmin):
 @admin.register(Pago)
 class PagoAdmin(admin.ModelAdmin):
     list_display = ('pedido', 'total_formateado', 'fecha')
-
-@admin.register(Pago)
-class PagoAdmin(admin.ModelAdmin):
-    list_display = ('pedido', 'total', 'fecha')
     list_filter = ('fecha',)
     search_fields = ('pedido__producto__nombre',)

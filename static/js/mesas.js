@@ -1,6 +1,6 @@
 // Inicializa el contador con el número de mesas existentes
 let pedidos = {}; // Objeto para almacenar los pedidos de cada mesa
-
+mesaCount = 0
 document.addEventListener('DOMContentLoaded', function() {
     console.log('JavaScript cargado correctamente.');
 });
@@ -11,14 +11,18 @@ function addMesa() {
     const newMesa = document.createElement('div');
     newMesa.className = 'col-md-4';
     newMesa.id = `mesa-${mesaCount}`;
+    let opciones = '';
+    productos.forEach(producto => {
+        console.log(producto.fields.nombre);
+        opciones += `<option value="${producto.fields.nombre}">${producto.fields.nombre}</option>`;
+    });
+
     newMesa.innerHTML = `
         <div class="card mb-4 mesa-card">
             <div class="card-body">
                 <h5 class="card-title">Mesa ${mesaCount}</h5>
                 <select class="form-select mb-3" id="producto-${mesaCount}">
-                    <option value="Aguila">Aguila</option>
-                    <option value="Poker">Poker</option>
-                    <option value="Club Colombia">Club Colombia</option>
+                    ${opciones}
                 </select>
                 <div class="quantity-controls">
                     <button class="btn btn-secondary quantity-btn" onclick="changeQuantity(${mesaCount}, -1)">-</button>
@@ -62,19 +66,19 @@ function showPedidos(mesaId) {
 function pagarCuenta(mesaId) {
     const pedidoList = pedidos[mesaId] || [];
     const total = pedidoList.reduce((sum, pedido) => sum + pedido.quantity, 0); // Calcula el total (puedes ajustar esto según los precios)
-    registrarPago(mesaId, total);
+    registrarPago(mesaId, total, pedidoList);
     showPopup(`Total a pagar para la mesa ${mesaId}`, pedidoList, mesaId);
     pedidos[mesaId] = []; // Reinicia los pedidos de la mesa
 }
 
-function registrarPago(mesaId, total) {
+function registrarPago(mesaId, total, pedidoList) {
     fetch(registrarPagoUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
+            'X-CSRFToken': csrfToken
         },
-        body: JSON.stringify({ mesa_id: mesaId, total: total })
+        body: JSON.stringify({ mesa_id: mesaId, total: total, pedidos: pedidoList })
     })
     .then(response => response.json())
     .then(data => {

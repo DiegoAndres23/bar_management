@@ -42,3 +42,10 @@ class Pedido(models.Model):
 class Pago(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='pagos')
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Pago de {self.total} para el pedido {self.pedido.id}'
+
+    def total_formateado(self):
+        return format_currency(self.total, 'COP', locale='es_CO')
