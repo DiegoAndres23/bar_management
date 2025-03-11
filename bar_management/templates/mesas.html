@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/mesas.css' %}">
+<div class="container">
+    <script>
+        var mesaCount = {{ mesas|length }};
+        var registrarPagoUrl = "{% url 'registrar_pago' %}";
+    </script>
+    <h2 class="my-4">Lista de Mesas</h2>
+    <button class="btn btn-primary mb-3 btn-svg" onclick="addMesa()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+        </svg>
+    </button>
+    
+    <!-- Lista de mesas -->
+    <div class="row" id="mesaList">
+        {% for mesa in mesas %}
+        <div class="col-md-4" id="mesa-{{ mesa.pk }}">
+            <div class="card mb-4 mesa-card">
+                <div class="card-body">
+                    <h5 class="card-title">Mesa {{ mesa.numero }}</h5>
+                    <select class="form-select mb-3" id="producto-{{ mesa.pk }}">
+                        <option value="Aguila">Aguila</option>
+                        <option value="Poker">Poker</option>
+                        <option value="Club Colombia">Club Colombia</option>
+                    </select>
+                    <div class="quantity-controls">
+                        <button class="btn btn-secondary quantity-btn" onclick="decreaseQuantity({{ mesa.pk }})">-</button>
+                        <input type="number" id="quantity-{{ mesa.pk }}" value="1" min="1" class="form-control quantity-input">
+                        <button class="btn btn-secondary quantity-btn" onclick="increaseQuantity({{ mesa.pk }})">+</button>
+                    </div>
+                    <button class="btn btn-success" onclick="addPedido({{ mesa.pk }})">Agregar Pedido</button>
+                    <button class="btn btn-info" onclick="showPedidos({{ mesa.pk }})">Ver Pedido</button>
+                    <button class="btn btn-warning" onclick="pagarCuenta({{ mesa.pk }})">Pagar Cuenta</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Popup -->
+<div id="popup" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="closePopup()">&times;</span>
+        <h2 id="popup-title"></h2>
+        <div id="popup-body"></div>
+        <button class="btn btn-primary" onclick="closePopup()">Cerrar</button>
+    </div>
+</div>
+<script src="{% static 'js/mesas.js' %}"></script>
+
+{% endblock %}

@@ -21,6 +21,5 @@ from bar import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('bar.urls')),
-    path('mesas/', include('bar.urls')),
     
 ]

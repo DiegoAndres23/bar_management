@@ -1,32 +1,44 @@
 from django.db import models
+from babel.numbers import format_currency
 
 class Producto(models.Model):
+    nombre = models.CharField(max_length=100)
+    precio_base = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.nombre
+
+    def precio_formateado(self):
+        return format_currency(self.precio_base, 'COP', locale='es_CO')
+
+class Topping(models.Model):
     nombre = models.CharField(max_length=100)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return self.nombre
 
-class Mesa(models.Model):
-    numero = models.IntegerField(unique=True)
-    capacidad = models.IntegerField()
-    estado = models.CharField(max_length=20, choices=[('disponible', 'Disponible'), ('ocupada', 'Ocupada')])
-
-    def __str__(self):
-        return f"Mesa {self.numero} - {self.estado}"
+    def precio_formateado(self):
+        return format_currency(self.precio, 'COP', locale='es_CO')
 
 class Pedido(models.Model):
-    mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE, related_name='pedidos')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='pedidos')
     cantidad = models.IntegerField()
-
-    def __str__(self):
-        return f"Pedido de {self.cantidad} {self.producto.nombre} en {self.mesa}"
-
-class Pago(models.Model):
-    mesa_id = models.IntegerField()
-    total = models.DecimalField(max_digits=10, decimal_places=2)
+    toppings = models.ManyToManyField(Topping, blank=True)
     fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Mesa {self.mesa_id} - Total: {self.total}'
+        return f"Pedido de {self.cantidad} {self.producto.nombre}"
+
+    def calcular_total(self):
+        total = self.producto.precio_base * self.cantidad
+        for topping in self.toppings.all():
+            total += topping.precio * self.cantidad
+        return total
+
+    def total_formateado(self):
+        return format_currency(self.calcular_total(), 'COP', locale='es_CO')
+
+class Pago(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='pagos')
+    total = models.DecimalField(max_digits=10, decimal_places=2)

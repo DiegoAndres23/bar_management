@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Mesa, Pedido, Producto
+from .models import Pedido, Producto
 from .forms import PedidoForm
 from django.views.decorators.csrf import csrf_exempt
 from .models import Pago
@@ -29,8 +29,13 @@ class HomePage(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         return super(HomePage, self).dispatch(request, *args, **kwargs)
 
-class MesaListView(ListView):
-    model = Mesa
-    template_name = 'mesa_list.html'
-    context_object_name = 'mesas'
+class MesasPage(TemplateView):
+    template_name = 'mesas.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(MesasPage, self).dispatch(request, *args, **kwargs)
 
