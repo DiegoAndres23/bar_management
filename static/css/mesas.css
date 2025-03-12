@@ -24,7 +24,7 @@
 }
 
 .mesa-card {
-    height: 300px; /* Ajusta la altura según tus necesidades */
+    height: 370px; /* Ajusta la altura según tus necesidades */
     overflow-y: auto; /* Permite el desplazamiento vertical si el contenido es demasiado grande */
 }
 

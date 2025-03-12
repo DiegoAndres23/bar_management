@@ -8,6 +8,7 @@
         var mesaCount = {{ mesas|length }};
         var registrarPagoUrl = "{% url 'registrar_pago' %}";
         var productos = JSON.parse('{{ productos|escapejs }}');
+        var toppings = JSON.parse('{{ toppings|escapejs }}');
         var csrfToken = "{{ csrf_token }}";
     </script>
     <h2 class="my-4">Lista de Mesas</h2>

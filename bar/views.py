@@ -1,10 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Pedido, Producto
-from .forms import PedidoForm
+from .models import Ventas, Producto, Topping
 from django.views.decorators.csrf import csrf_exempt
-from .models import Pago
 import json
 from django.http import JsonResponse
 from django.core.serializers import serialize
@@ -13,11 +11,23 @@ from django.core.serializers import serialize
 def registrar_pago(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        mesa_id = data['mesa_id']
-        total = data['total']
-        pago = Pago.objects.create(mesa_id=mesa_id, 
-                                   total=total)
-        return JsonResponse({'status': 'success', 'pago_id': pago.id})
+        print(data["pedidos"])
+        for pedido in data["pedidos"]:
+            producto_nombre = pedido["producto"]
+            cantidad = pedido["quantity"]
+            toppings_nombres = pedido["toppings"]
+
+            # Obtener la instancia de Producto
+            producto = Producto.objects.get(nombre=producto_nombre)
+
+            # Obtener las instancias de Topping
+            toppings = Topping.objects.filter(nombre__in=toppings_nombres)
+
+            # Crear la instancia de Ventas
+            pago = Ventas.objects.create(producto=producto, cantidad=cantidad)
+            pago.toppings.set(toppings)
+            pago.save()
+        return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=400)
 
 
@@ -38,6 +48,8 @@ class MesasPage(TemplateView):
         context = super().get_context_data(**kwargs)
         context['productos'] = Producto.objects.all()
         context['productos'] = serialize('json', context['productos'])
+        context['toppings'] = Topping.objects.all()
+        context['toppings'] = serialize('json', context['toppings'])
         return context
 
     def dispatch(self, request, *args, **kwargs):
