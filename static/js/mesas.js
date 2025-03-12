@@ -107,7 +107,7 @@ function pagarCuenta(mesaId) {
     const total = pedidoList.reduce((sum, pedido) => sum + pedido.quantity, 0); // Calcula el total (puedes ajustar esto según los precios)
     registrarPago(mesaId, total, pedidoList);
     showPopup(`Total a pagar para la mesa ${mesaId}`, pedidoList, mesaId);
-    //pedidos[mesaId] = []; // Reinicia los pedidos de la mesa
+    pedidos[mesaId] = []; // Reinicia los pedidos de la mesa
 }
 
 function registrarPago(mesaId, total, pedidoList) {

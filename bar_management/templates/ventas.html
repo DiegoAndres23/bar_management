@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<script>
+    var ventas = JSON.parse('{{ ventas|escapejs }}');
+    var csrfToken = "{{ csrf_token }}";
+</script>
+<link rel="stylesheet" href="{% static 'css/ventas.css' %}">
+<div class="container">
+    <h2 class="my-4">Lista de Ventas</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td>{{ venta.producto.nombre }}</td>
+                <td>{{ venta.cantidad }}</td>
+                <td>{{ venta.calcular_total }}</td>
+                <td>{{ venta.fecha }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="my-4">Gráfico de Ventas</h2>
+    <div id="ventas-graph"></div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    var graphJSON = {{ graph_json|safe }};
+    Plotly.newPlot('ventas-graph', graphJSON.data, graphJSON.layout);
+</script>
+{% endblock %}
